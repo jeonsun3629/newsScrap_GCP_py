@@ -1,0 +1,36 @@
+steps:
+  # 이미지 빌드
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/newsscrap-456607/newsscrap-service:latest', '.']
+
+  # Container Registry에 이미지 푸시
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/newsscrap-456607/newsscrap-service:latest']
+
+  # Cloud Run에 배포
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'newsscrap-service'
+      - '--image'
+      - 'gcr.io/newsscrap-456607/newsscrap-service:latest'
+      - '--region'
+      - 'asia-northeast3'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '512Mi'
+      - '--timeout'
+      - '300s'
+      - '--cpu'
+      - '1'
+
+# 빌드된 이미지
+images:
+  - 'gcr.io/newsscrap-456607/newsscrap-service:latest'
+
+# 타임아웃 설정 (빌드가 1시간 이상 걸리면 실패)
+timeout: '3600s' 
